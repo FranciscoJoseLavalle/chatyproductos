@@ -4,7 +4,8 @@ import __dirname from './utils.js';
 import viewsRouter from './routes/views.router.js';
 import { Server } from 'socket.io';
 import File from './classes/file.js';
-let newFile = new File('chatMessages');
+import FileSQL from './classes/fileSQL.js';
+let newFile = new FileSQL('messagestable');
 let newProduct = new File('products');
 
 const app = express();
