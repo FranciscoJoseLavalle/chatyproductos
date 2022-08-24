@@ -3,7 +3,7 @@ import knex from 'knex';
 const database = knex({
     client: 'sqlite3',
     connection: {
-        filename: './sqliteDatabase.sqlite'
+        filename: './src/database/sqliteDatabase.sqlite'
     },
     useNullAsDefault: true
 })
@@ -17,21 +17,31 @@ class FileSQL {
         try {
             let exists = await database.schema.hasTable(this.fileName);
             if (exists) {
-                await database(this.fileName).del();
+                // await database(this.fileName).del();
             } else {
-                await database.schema.createTable(this.fileName, table => {
-                    table.primary('id');
-                    table.increments('id');
-                    table.string('user');
-                    table.string('message');
-                    table.string('date');
-                })
+                if (this.fileName == "messagestable") {
+                    await database.schema.createTable("messagestable", table => {
+                        table.primary('id');
+                        table.increments('id');
+                        table.string('user');
+                        table.string('message');
+                        table.string('date');
+                    })
+                } else if (this.fileName == 'products') {
+                    await database.schema.createTable("products", table => {
+                        table.primary('id');
+                        table.increments('id');
+                        table.string('name');
+                        table.string('price');
+                        table.string('thumbnail');
+                    })
+                }
             }
             const allItems = await database(this.fileName).select('*');
 
             return allItems
         } catch (error) {
-            return {response: 'Cannot get the products' + error}
+            return { response: 'Cannot get the products' + error }
         }
     }
 
@@ -51,7 +61,10 @@ class FileSQL {
 
     async addItem(object) {
         try {
-            await database(this.fileName).insert([object]);
+            let exists = await database.schema.hasTable(this.fileName);
+            if (exists) {
+                await database(this.fileName).insert([object]);
+            }
         } catch (error) {
             console.log(`ERROR: ${error}`)
         }

@@ -6,7 +6,7 @@ import { Server } from 'socket.io';
 import File from './classes/file.js';
 import FileSQL from './classes/fileSQL.js';
 let newFile = new FileSQL('messagestable');
-let newProduct = new File('products');
+let newProduct = new FileSQL('products');
 
 const app = express();
 const server = app.listen(8080, () => console.log("Escuchando en puerto 8080"));
@@ -34,12 +34,16 @@ io.on('connection', async socket => {
     socket.on('message', async (data) => {
         await newFile.addItem(data)
         let archivo = await newFile.getAll();
+        console.log(archivo);
         await io.emit('log', archivo);
     })
 
     socket.on('addProduct', async (data) => {
+        await newProduct.getAll();
         await newProduct.addItem(data);
         let product = await newProduct.getAll();
+        console.log(product);
+        console.log(data);
         await io.emit('sendProduct', product)
     })
 })
